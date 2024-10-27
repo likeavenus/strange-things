@@ -1,0 +1,134 @@
+{
+    "frames": {
+        "Idle0.png": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 57,
+                "h": 86
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 57,
+                "h": 86
+            },
+            "sourceSize": {
+                "w": 57,
+                "h": 86
+            }
+        },
+        "Idle1.png": {
+            "frame": {
+                "x": 57,
+                "y": 0,
+                "w": 57,
+                "h": 86
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 57,
+                "h": 86
+            },
+            "sourceSize": {
+                "w": 57,
+                "h": 86
+            }
+        },
+        "Idle2.png": {
+            "frame": {
+                "x": 114,
+                "y": 0,
+                "w": 57,
+                "h": 86
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 57,
+                "h": 86
+            },
+            "sourceSize": {
+                "w": 57,
+                "h": 86
+            }
+        },
+        "Idle3.png": {
+            "frame": {
+                "x": 0,
+                "y": 86,
+                "w": 57,
+                "h": 86
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 57,
+                "h": 86
+            },
+            "sourceSize": {
+                "w": 57,
+                "h": 86
+            }
+        },
+        "Idle4.png": {
+            "frame": {
+                "x": 57,
+                "y": 86,
+                "w": 57,
+                "h": 86
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 57,
+                "h": 86
+            },
+            "sourceSize": {
+                "w": 57,
+                "h": 86
+            }
+        },
+        "Idle5.png": {
+            "frame": {
+                "x": 114,
+                "y": 86,
+                "w": 57,
+                "h": 86
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 57,
+                "h": 86
+            },
+            "sourceSize": {
+                "w": 57,
+                "h": 86
+            }
+        }
+    },
+    "meta": {
+        "app": "https://github.com/piskelapp/piskel/",
+        "version": "1.0",
+        "image": "Idle.png",
+        "format": "RGBA8888",
+        "size": {
+            "w": 171,
+            "h": 172
+        }
+    }
+}
