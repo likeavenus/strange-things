@@ -8,4 +8,5 @@ export enum COLLISION_CATEGORIES {
   Platforms = 32,
   Torch = 64,
   EnemySphere = 128,
+  DeathCollider = 256,
 }

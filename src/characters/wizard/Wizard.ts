@@ -9,9 +9,17 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
   isFalling = false;
   jumpMaxCounter = 2;
   currentJumpCounter = 0;
-  mana = 1; // Текущее значение маны (от 0 до 6)
-  maxMana = 6;
+  hp = 5;
+  maxHP = 10;
+  mana = 2; // Текущее значение маны (от 0 до 6)
+  maxMana = 5;
   graphics!: Phaser.GameObjects.Graphics;
+  isStunned = false;
+  isCutscene = false;
+
+  knockbackVelocity = 10; // Настройте по необходимости
+  knockbackDuration = 300; // Время действия отскока в миллисекундах
+  knockbackTimer = 0;
 
   constructor(
     scene: Phaser.Scene,
@@ -37,14 +45,13 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     this.setScale(2);
     this.setFixedRotation();
 
-    this.setOnCollide((data) => {
-      this.isTouchingGround = true;
+    // this.setOnCollide((data) => {
+    //   this.isTouchingGround = true;
 
-      //   const { bodyA, bodyB } = data;
-    });
+    //   //   const { bodyA, bodyB } = data;
+    // });
 
     scene!.input!.keyboard!.on("keydown-E", this.baseAttack, this);
-
     scene!.input!.keyboard!.on("keydown-F", this.rangeAttack, this);
 
     this.setCollisionCategory(COLLISION_CATEGORIES.Player);
@@ -61,12 +68,12 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     //   console.log(e.key);
     // });
 
-    // this.setMass(0.5);
-    // this.setDensity(0.005);
-
-    this.scene.matter.world.on("collisionstart", this.handleCollision, this);
+    scene.matter.world.on("collisionstart", this.handleCollision, this);
+    scene.matter.world.on("collisionstart", this.handleCollisionStart, this);
+    scene.matter.world.on("collisionend", this.handleCollisionEnd, this);
 
     this.graphics = scene.add.graphics();
+    this.graphics.setDepth(100);
 
     scene.time.addEvent({
       loop: true,
@@ -80,7 +87,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
   }
 
   baseAttack() {
-    if (this.isAttacking || !this.isTouchingGround) {
+    if (this.isAttacking || !this.isTouchingGround || this.hp <= 0) {
       return;
     }
 
@@ -112,7 +119,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
       return;
     }
 
-    if (this.mana === 0) {
+    if (this.hp <= 0 || this.mana === 0) {
       return;
     }
 
@@ -158,6 +165,15 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
 
   update(cursors: Phaser.Types.Input.Keyboard.CursorKeys): void {
     this.drawMana();
+    this.drawHP();
+
+    if (this.hp <= 0) {
+      return;
+    }
+
+    if (this.isStunned) {
+      return;
+    }
 
     const { left, right, up, down, space } = cursors;
 
@@ -232,15 +248,169 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     ) {
       this.currentJumpCounter = 0;
     }
+    // // Логика прыжка
+    // if (
+    //   Phaser.Input.Keyboard.JustDown(space) &&
+    //   (this.isTouchingGround || this.currentJumpCounter < this.jumpMaxCounter)
+    // ) {
+    //   this.setVelocityY(-jumpSpeed);
+    //   this.isTouchingGround = false; // Это может быть излишним, так как коллизии управляют этим флагом
+    //   this.currentJumpCounter++;
+    // }
+
+    // // Сброс счётчика прыжков при касании земли
+    // if (
+    //   this.isTouchingGround &&
+    //   this.currentJumpCounter === this.jumpMaxCounter
+    // ) {
+    //   this.currentJumpCounter = 0;
+    // }
   }
 
   slowDownTime() {
-    this.scene.time.scale = 0.5; // Устанавливаем временной масштаб в 0.5 (замедление в 2 раза)
-    console.log("slow");
+    // this.scene.time.scale = 0.5; // Устанавливаем временной масштаб в 0.5 (замедление в 2 раза)
+    // console.log("slow", this.scene.matter.world);
+    // // Устанавливаем таймер, чтобы вернуть время в нормальное состояние через 1 секунду
 
-    // Устанавливаем таймер, чтобы вернуть время в нормальное состояние через 1 секунду
-    this.scene.time.delayedCall(1000, () => {
-      this.scene.time.scale = 1; // Возвращаем временной масштаб обратно к 1
+    this.scene.matter.world.engine.timing.timeScale = 0.1;
+
+    this.scene.time.delayedCall(300, () => {
+      this.scene.matter.world.engine.timing.timeScale = 1;
+    });
+  }
+
+  flashEffect() {
+    const flashDuration = 500; // Общая длительность эффекта в миллисекундах
+    const flashInterval = 50; // Интервал мерцания в миллисекундах
+    const flashes = Math.floor(flashDuration / flashInterval);
+
+    const flashTimeline = this.scene.add.timeline({});
+
+    for (let i = 0; i < flashes; i++) {
+      // flashTimeline.add({
+      //   targets: this,
+      //   tint: i % 2 === 0 ? 0x000000 : 0xffffff,
+      //   duration: flashInterval,
+      // });
+      this.setTint(i % 2 === 0 ? 0x000000 : 0xffffff);
+    }
+    // animationcomplete
+    // flashTimeline.on("complete", () => {
+    //   this.clearTint();
+    // });
+
+    // flashTimeline.play();
+  }
+
+  getDamage() {
+    this.isAttacking = false;
+
+    this.hp -= 1;
+
+    this.applyKnockback(this.flipX ? "left" : "right");
+    this.isStunned = true;
+
+    this.flashEffect();
+
+    this.on("animationcomplete", (e) => {
+      if (e.key === "wizard_hit") {
+        this.isStunned = false;
+      }
+    });
+
+    if (this.hp <= 0) {
+      this.anims.play("wizard_death", true);
+      this.setCollisionCategory(COLLISION_CATEGORIES.DeathCollider);
+    } else {
+      // this.anims.timeScale = 0.5;
+      this.anims.play("wizard_hit");
+
+      this.scene.children.each((item) => {
+        if (item?.anims) {
+          item.anims.timeScale = 0.4;
+        }
+      });
+
+      this.scene.time.delayedCall(300, () => {
+        // this.anims.timeScale = 1;
+
+        this.scene.children.each((item) => {
+          if (item?.anims) {
+            item.anims.timeScale = 1;
+          }
+        });
+      });
+    }
+  }
+
+  private applyKnockback(direction: "left" | "right") {
+    if (this.isStunned) return; // Предотвращение повторного применения отскока
+
+    // Установка горизонтальной скорости в зависимости от направления атаки
+    const velocityX =
+      direction === "left" ? this.knockbackVelocity : -this.knockbackVelocity;
+
+    // Применение вертикальной скорости (прыжок от удара)
+    const velocityY = -this.knockbackVelocity / 2; // Настройте по необходимости
+
+    // Установка новой скорости персонажа
+    this.setVelocityX(velocityX);
+    this.setVelocityY(velocityY);
+
+    // Запуск таймера для окончания эффекта отскока
+    this.knockbackTimer = this.knockbackDuration;
+  }
+
+  private handleCollisionStart(
+    event: Phaser.Types.Physics.Matter.MatterCollisionEvent
+  ) {
+    // event.pairs.forEach((pair) => {
+    //   if (
+    //     (pair.bodyA.label === "wizard" && pair.bodyB.label === "ground") ||
+    //     (pair.bodyB.label === "wizard" && pair.bodyA.label === "ground")
+    //   ) {
+    //     console.log("handleCollisionStart");
+
+    //     this.isTouchingGround = true;
+    //     this.currentJumpCounter = 0; // Сброс счётчика прыжков при касании земли
+    //   }
+    // });
+    const pairs = event.pairs;
+    pairs.forEach((pair) => {
+      const { bodyA, bodyB } = pair;
+
+      if (
+        (bodyA.collisionFilter.category === COLLISION_CATEGORIES.Ground &&
+          bodyB.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
+        (bodyB.collisionFilter.category === COLLISION_CATEGORIES.Ground &&
+          bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player)
+      ) {
+        if (!this.isTouchingGround) {
+          this.isTouchingGround = true;
+          this.currentJumpCounter = 0; // Сброс счётчика прыжков при касании земли
+        }
+
+        // this.isTouchingGround = true;
+        // this.currentJumpCounter = 0; // Сброс счётчика прыжков при касании земли
+      }
+    });
+  }
+
+  private handleCollisionEnd(
+    event: Phaser.Types.Physics.Matter.MatterCollisionEvent
+  ) {
+    const pairs = event.pairs;
+    pairs.forEach((pair) => {
+      const { bodyA, bodyB } = pair;
+
+      if (
+        (bodyA.collisionFilter.category === COLLISION_CATEGORIES.Ground &&
+          bodyB.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
+        (bodyB.collisionFilter.category === COLLISION_CATEGORIES.Ground &&
+          bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player)
+      ) {
+        this.isTouchingGround = false;
+      }
     });
   }
 
@@ -259,9 +429,10 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
         (bodyB.collisionFilter.category === COLLISION_CATEGORIES.EnemySphere &&
           bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player)
       ) {
-        this.scene.cameras.main.shake(500, 0.03);
+        this.scene.cameras.main.shake(500, 0.009);
 
         this.slowDownTime();
+        this.getDamage();
       }
     });
   }
@@ -272,27 +443,94 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     this.graphics.setPosition(50, 50);
 
     const xStart = 10; // Начальная позиция по X
+    const yStart = 45; // Начальная позиция по Y
+    const potionWidth = 20; // Ширина колбочки
+    const potionHeight = 20; // Высота колбочки
+    const potionSpacing = 5; // Промежуток между колбочками
+
+    // Рисуем колбочки
+    // for (let i = 0; i < this.maxMana; i++) {
+    //   // Определяем координаты для каждой колбочки
+    //   const x = xStart + (potionWidth + potionSpacing) * i * 1.3;
+    //   const y = yStart;
+
+    //   // Цвет колбочки
+    //   this.graphics.fillStyle(0xffffff); // Черный цвет (контур)
+    //   //   this.graphics.fillRect(x, y, potionWidth, potionHeight); // Рисуем контур колбочки
+    //   this.graphics.fillCircle(x, y, 15);
+
+    //   // Закрашиваем колбочку, если мана больше, чем индекс
+    //   if (i < this.mana) {
+    //     this.graphics.fillStyle(0x1111ff); // Цвет заполненной колбочки (темно-фиолетовый)
+    //     // this.graphics.fillRect(x + 1, y + 1, potionWidth - 2, potionHeight - 2); // Рисуем заполненную часть с отступами
+    //     this.graphics.fillCircle(x, y, 14);
+    //   }
+    // }
+
+    const size = 10; // Половина ширины ромба
+    for (let i = 0; i < this.mana; i++) {
+      const x = 10 + i * 30; // Примерная позиция по X
+      const y = 50; // Примерная позиция по Y
+
+      // Начинаем рисовать путь
+      this.graphics.beginPath();
+
+      // Определяем вершины ромба
+      this.graphics.moveTo(x, y - size); // Верхняя вершина
+      this.graphics.lineTo(x + size, y); // Правая вершина
+      this.graphics.lineTo(x, y + size); // Нижняя вершина
+      this.graphics.lineTo(x - size, y); // Левая вершина
+      this.graphics.closePath(); // Завершаем путь
+
+      // Закрашиваем ромб
+      this.graphics.fillPath();
+
+      if (i < this.mana) {
+        this.graphics.fillStyle(0x1111ff); // Цвет заполненной колбочки (темно-фиолетовый)
+        // // this.graphics.fillRect(x + 1, y + 1, potionWidth - 2, potionHeight - 2); // Рисуем заполненную часть с отступами
+        // this.graphics.fillCircle(x, y, 14);
+
+        this.graphics.beginPath();
+
+        // Определяем вершины ромба
+        this.graphics.moveTo(x, y - size); // Верхняя вершина
+        this.graphics.lineTo(x + size, y); // Правая вершина
+        this.graphics.lineTo(x, y + size); // Нижняя вершина
+        this.graphics.lineTo(x - size, y); // Левая вершина
+        this.graphics.closePath(); // Завершаем путь
+
+        // Закрашиваем ромб
+        this.graphics.fillPath();
+      }
+    }
+  }
+
+  drawHP() {
+    this.graphics.setScrollFactor(0);
+    this.graphics.setPosition(10, 30);
+
+    const xStart = 10; // Начальная позиция по X
     const yStart = 10; // Начальная позиция по Y
     const potionWidth = 20; // Ширина колбочки
     const potionHeight = 20; // Высота колбочки
     const potionSpacing = 5; // Промежуток между колбочками
 
     // Рисуем колбочки
-    for (let i = 0; i < this.maxMana; i++) {
+    for (let i = 0; i < this.maxHP; i++) {
       // Определяем координаты для каждой колбочки
-      const x = xStart + (potionWidth + potionSpacing) * i;
+      const x = xStart + (potionWidth + potionSpacing) * i * 1.3;
       const y = yStart;
 
       // Цвет колбочки
       this.graphics.fillStyle(0xffffff); // Черный цвет (контур)
       //   this.graphics.fillRect(x, y, potionWidth, potionHeight); // Рисуем контур колбочки
-      this.graphics.fillCircle(x, y, 11);
+      this.graphics.fillCircle(x, y, 13);
 
       // Закрашиваем колбочку, если мана больше, чем индекс
-      if (i < this.mana) {
-        this.graphics.fillStyle(0x1111ff); // Цвет заполненной колбочки (темно-фиолетовый)
+      if (i < this.hp) {
+        this.graphics.fillStyle(0xff0000); // Цвет заполненной колбочки (темно-фиолетовый)
         // this.graphics.fillRect(x + 1, y + 1, potionWidth - 2, potionHeight - 2); // Рисуем заполненную часть с отступами
-        this.graphics.fillCircle(x, y, 10);
+        this.graphics.fillCircle(x, y, 12);
       }
     }
   }

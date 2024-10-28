@@ -10,6 +10,11 @@ export class Game extends Scene {
   projectiles!: Phaser.GameObjects.Group;
   light!: Phaser.GameObjects.Light;
   heretic!: Heretic;
+  hereticGroup!: Phaser.GameObjects.Group;
+  isCutscene = false;
+
+  private topBlackBars!: Phaser.GameObjects.Rectangle;
+  private bottomBlackBars!: Phaser.GameObjects.Rectangle;
 
   constructor() {
     super("Game");
@@ -65,32 +70,14 @@ export class Game extends Scene {
     const platformsLayer = map.createLayer("platforms", tileset, 0, 0);
     const handle1Layer = map.createLayer("handle1", tileset, 0, 0);
 
-    [groundLayer, platformsLayer, handle1Layer].map((item) => {
+    [groundLayer, platformsLayer, handle1Layer].forEach((item) => {
       const layerName = item?.layer.name;
       item?.setName(layerName);
 
-      //   item?.setName("ground");
       item?.setCollisionByProperty({ collides: true });
 
       if (layerName === "ground") {
         item?.setCollisionCategory(COLLISION_CATEGORIES.Ground);
-
-        // item?.tileset?.[0].texCoordinates.forEach((tile) => {
-        //   const torch1 = this.matter.add.image(
-        //     tile.x,
-        //     tile.y + 3000,
-        //     "torch1",
-        //     undefined,
-        //     {
-        //       isStatic: true,
-        //     }
-        //   );
-
-        //   console.log(tile);
-
-        //   torch1.setPipeline("Light2D");
-        //   torch1.setCollisionCategory(COLLISION_CATEGORIES.Torch);
-        // });
       }
       if (layerName === "platforms") {
         item?.setCollisionCategory(COLLISION_CATEGORIES.Platforms);
@@ -105,15 +92,6 @@ export class Game extends Scene {
         item as Phaser.Tilemaps.TilemapLayer
       );
     });
-
-    // this.tweens.add({
-    //   targets: handle1Layer,
-    //   y: handle1Layer?.y - 600,
-    //   yoyo: true,
-    //   duration: 5000,
-    //   repeat: -1,
-    //   ease: "ease",
-    // });
   }
 
   createTorch(x: number, y: number) {
@@ -142,6 +120,7 @@ export class Game extends Scene {
 
   create() {
     this.camera = this.cameras.main;
+    this.camera.setZoom(0.9);
     this.lights.enable();
     this.projectiles = this.add.group();
 
@@ -150,13 +129,14 @@ export class Game extends Scene {
     this.createTorch(150, 2975);
     this.createTorch(1050, 2975);
     this.createTorch(2350, 2975);
+    this.createTorch(1000, 1060);
 
     this.wizard = new Wizard(this, 90, 2900, "wizard_idle");
 
     this.createMap();
 
     this.camera.setDeadzone(160, 250);
-    this.camera.startFollow(this.wizard, true, 1, 1, -200, 0);
+    this.camera.startFollow(this.wizard, true, 1, 1, -100, -30);
 
     this.light = this.lights.addLight(
       this.wizard.x,
@@ -166,14 +146,68 @@ export class Game extends Scene {
       1
     );
 
-    this.heretic = new Heretic(this, 1000, 2900, "heretic_run");
+    // this.heretic = new Heretic(this, 2500, 2900, "heretic_run");
 
-    // this.heretic2 = new Heretic(this, 3800, 2900, "heretic_run");
+    this.hereticGroup = this.add.group({
+      classType: Heretic,
+      key: "heretic",
+      runChildUpdate: true,
+      // setScale: { x: 3, y: 3 },
+      // createMultipleCallback: () => {},
+      // createCallback: (item) => {},
+    });
+
+    this.hereticGroup.get(1200, 2900);
+    this.hereticGroup.get(1900, 2900);
+    this.hereticGroup.get(2500, 2900);
+    this.hereticGroup.get(500, 500);
+
+    // this.heretic2 = new Heretic(this, 500, 2900, "heretic_run");
+  }
+
+  // Функция для создания кинорамок
+  private createBlackBars() {
+    const width = this.cameras.main.width;
+    const height = 100; // Высота каждой полоски
+
+    // Создаем верхнюю барруку вне экрана
+    this.topBlackBars = this.add
+      .rectangle(width / 2, -height / 2, width, height, 0x000000)
+      .setOrigin(0.5, 0)
+      .setDepth(1000);
+
+    // Создаем нижнюю барруку вне экрана
+    this.bottomBlackBars = this.add
+      .rectangle(
+        width / 2,
+        this.cameras.main.height + height / 2,
+        width,
+        height,
+        0x000000
+      )
+      .setOrigin(0.5, 1)
+      .setDepth(1000);
+
+    // Анимируем появление кинорамок
+    this.tweens.add({
+      targets: this.topBlackBars,
+      y: 0,
+      duration: 1000,
+      ease: "Power2",
+    });
+
+    this.tweens.add({
+      targets: this.bottomBlackBars,
+      y: this.cameras.main.height,
+      duration: 1000,
+      ease: "Power2",
+    });
   }
 
   update(time: number, delta: number): void {
     this.wizard.update(this.cursors);
-    this.heretic.update(this.cursors);
+    // this.hereticGroup.children.clear
+    // this.heretic.update(this.cursors);
 
     // if (this.light) {
     //   this.light.setPosition(this.wizard.x - 20, this.wizard.y - 20);

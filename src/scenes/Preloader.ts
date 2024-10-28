@@ -68,6 +68,14 @@ export class Preloader extends Scene {
       "wizard/attack2/Attack2.json"
     );
 
+    this.load.atlas(
+      "wizard_death",
+      "wizard/death/Death.png",
+      "wizard/death/Death.json"
+    );
+
+    this.load.atlas("wizard_hit", "wizard/hit/Hit.png", "wizard/hit/Hit.json");
+
     /** Map */
     this.load.image("tileset", "map/brick.png");
     this.load.tilemapTiledJSON("map", "map/map.json");
@@ -81,6 +89,9 @@ export class Preloader extends Scene {
     this.load.atlas("torch1", "torch/torch.png", "torch/torch.json");
     /** Heretic */
     this.loadHeretic();
+
+    /** sound */
+    this.load.audio("footstep", "wizard/footstep.mp3");
   }
 
   create() {
@@ -89,6 +100,6 @@ export class Preloader extends Scene {
 
     //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
     // this.scene.start('MainMenu');
-    this.scene.start("Game");
+    this.scene.start("Boot");
   }
 }

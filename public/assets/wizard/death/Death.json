@@ -1,0 +1,60 @@
+{
+  "frames": {
+    "Death0.png": {
+      "frame": { "x": 0, "y": 0, "w": 106, "h": 101 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 106, "h": 101 },
+      "sourceSize": { "w": 106, "h": 101 }
+    },
+    "Death1.png": {
+      "frame": { "x": 106, "y": 0, "w": 106, "h": 101 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 106, "h": 101 },
+      "sourceSize": { "w": 106, "h": 101 }
+    },
+    "Death2.png": {
+      "frame": { "x": 212, "y": 0, "w": 106, "h": 101 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 106, "h": 101 },
+      "sourceSize": { "w": 106, "h": 101 }
+    },
+    "Death3.png": {
+      "frame": { "x": 0, "y": 101, "w": 106, "h": 101 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 106, "h": 101 },
+      "sourceSize": { "w": 106, "h": 101 }
+    },
+    "Death4.png": {
+      "frame": { "x": 106, "y": 101, "w": 106, "h": 101 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 106, "h": 101 },
+      "sourceSize": { "w": 106, "h": 101 }
+    },
+    "Death5.png": {
+      "frame": { "x": 212, "y": 101, "w": 106, "h": 101 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 106, "h": 101 },
+      "sourceSize": { "w": 106, "h": 101 }
+    },
+    "Death6.png": {
+      "frame": { "x": 0, "y": 202, "w": 106, "h": 101 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 106, "h": 101 },
+      "sourceSize": { "w": 106, "h": 101 }
+    }
+  },
+  "meta": {
+    "app": "https://github.com/piskelapp/piskel/",
+    "version": "1.0",
+    "image": "Death.png",
+    "format": "RGBA8888",
+    "size": { "w": 318, "h": 303 }
+  }
+}

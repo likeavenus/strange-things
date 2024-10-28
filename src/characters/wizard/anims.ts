@@ -74,4 +74,28 @@ export const createWizardAnims = (
     // repeat: -1,
     frameRate: 15,
   });
+
+  anims.create({
+    key: "wizard_death",
+    frames: anims.generateFrameNames("wizard_death", {
+      start: 0,
+      end: 6,
+      prefix: "Death",
+      suffix: ".png",
+    }),
+    // repeat: -1,
+    frameRate: 11,
+  });
+
+  anims.create({
+    key: "wizard_hit",
+    frames: anims.generateFrameNames("wizard_hit", {
+      start: 0,
+      end: 3,
+      prefix: "Hit",
+      suffix: ".png",
+    }),
+    // repeat: -1,
+    frameRate: 11,
+  });
 };

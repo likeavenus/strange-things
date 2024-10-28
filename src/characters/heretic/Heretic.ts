@@ -11,6 +11,7 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
   jumpMaxCounter = 2;
   currentJumpCounter = 0;
   direction = 1;
+  isDead = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -21,9 +22,7 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
   ) {
     super(scene.matter.world, x, y, texture, frame, {
       label: "heretic",
-      //   frictionAir: 0.01,
       frictionAir: 0.05,
-      //   friction: 1,
     });
 
     this.flipX = false;
@@ -32,6 +31,7 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
     this.anims.play("heretic_run");
 
     this.setScale(3.0);
+    this.setRectangle(this.width * 2, this.height * 3, {});
     this.setFixedRotation();
 
     this.setOnCollide((data) => {
@@ -41,7 +41,6 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
     });
 
     // scene!.input!.keyboard!.on("keydown-E", this.baseAttack, this);
-
     // scene!.input!.keyboard!.on("keydown-F", this.rangeAttack, this);
 
     this.setCollisionCategory(COLLISION_CATEGORIES.Enemy);
@@ -58,7 +57,9 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
       loop: true,
       delay: 1600,
       callback: () => {
-        this.direction = -this.direction;
+        if (!this.isDead) {
+          this.direction = -this.direction;
+        }
       },
     });
 
@@ -66,7 +67,16 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
       loop: true,
       delay: 2000,
       callback: () => {
-        this.rangeAttack();
+        if (!this.isDead) {
+          const wizard = this.scene.children.getByName("wizard");
+
+          if (
+            Phaser.Math.Distance.Between(wizard.x, wizard.y, this.x, this.y) <
+            700
+          ) {
+            this.rangeAttack();
+          }
+        }
       },
     });
   }
@@ -228,14 +238,17 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
   //   }
   update(cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
     // if (this.body)
-    if (this.isAttacking) return;
+    if (this.isAttacking || this.isDead) return;
     const speed = 10;
-    if (this.direction > 0) {
-      this.flipX = false;
-      this.setVelocityX(speed);
-    } else {
-      this.flipX = true;
-      this.setVelocityX(-speed);
+
+    if (this) {
+      if (this.direction > 0) {
+        this.flipX = false;
+        this.setVelocityX(speed);
+      } else {
+        this.flipX = true;
+        this.setVelocityX(-speed);
+      }
     }
   }
 
@@ -253,7 +266,9 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
       ) {
         // this.applyForce(new Phaser.Math.Vector2(1000, 1000));
         // this.setPosition(this.x - 50, this.y - 200);
-        const wizard = this.scene.children.getByName("wizard");
+        // const wizard = this.scene.children.getByName("wizard");
+        this.isDead = true;
+        this.destroy(true);
 
         // this.applyForceFrom(
         //   new Phaser.Math.Vector2(wizard.x, wizard.y),
