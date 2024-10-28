@@ -1,0 +1,25 @@
+{
+  "frames": {
+    "Jump0.png": {
+      "frame": { "x": 0, "y": 0, "w": 66, "h": 87 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 87 },
+      "sourceSize": { "w": 66, "h": 87 }
+    },
+    "Jump1.png": {
+      "frame": { "x": 66, "y": 0, "w": 66, "h": 87 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 87 },
+      "sourceSize": { "w": 66, "h": 87 }
+    }
+  },
+  "meta": {
+    "app": "https://github.com/piskelapp/piskel/",
+    "version": "1.0",
+    "image": "Jump.png",
+    "format": "RGBA8888",
+    "size": { "w": 132, "h": 87 }
+  }
+}

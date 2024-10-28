@@ -1,0 +1,67 @@
+{
+  "frames": {
+    "Attack10.png": {
+      "frame": { "x": 0, "y": 0, "w": 167, "h": 136 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 167, "h": 136 },
+      "sourceSize": { "w": 167, "h": 136 }
+    },
+    "Attack11.png": {
+      "frame": { "x": 167, "y": 0, "w": 167, "h": 136 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 167, "h": 136 },
+      "sourceSize": { "w": 167, "h": 136 }
+    },
+    "Attack12.png": {
+      "frame": { "x": 334, "y": 0, "w": 167, "h": 136 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 167, "h": 136 },
+      "sourceSize": { "w": 167, "h": 136 }
+    },
+    "Attack13.png": {
+      "frame": { "x": 0, "y": 136, "w": 167, "h": 136 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 167, "h": 136 },
+      "sourceSize": { "w": 167, "h": 136 }
+    },
+    "Attack14.png": {
+      "frame": { "x": 167, "y": 136, "w": 167, "h": 136 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 167, "h": 136 },
+      "sourceSize": { "w": 167, "h": 136 }
+    },
+    "Attack15.png": {
+      "frame": { "x": 334, "y": 136, "w": 167, "h": 136 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 167, "h": 136 },
+      "sourceSize": { "w": 167, "h": 136 }
+    },
+    "Attack16.png": {
+      "frame": { "x": 0, "y": 272, "w": 167, "h": 136 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 167, "h": 136 },
+      "sourceSize": { "w": 167, "h": 136 }
+    },
+    "Attack17.png": {
+      "frame": { "x": 167, "y": 272, "w": 167, "h": 136 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 167, "h": 136 },
+      "sourceSize": { "w": 167, "h": 136 }
+    }
+  },
+  "meta": {
+    "app": "https://github.com/piskelapp/piskel/",
+    "version": "1.0",
+    "image": "Attack1.png",
+    "format": "RGBA8888",
+    "size": { "w": 501, "h": 408 }
+  }
+}

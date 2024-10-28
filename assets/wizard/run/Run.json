@@ -1,0 +1,67 @@
+{
+  "frames": {
+    "Run0.png": {
+      "frame": { "x": 0, "y": 0, "w": 77, "h": 79 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 77, "h": 79 },
+      "sourceSize": { "w": 77, "h": 79 }
+    },
+    "Run1.png": {
+      "frame": { "x": 77, "y": 0, "w": 77, "h": 79 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 77, "h": 79 },
+      "sourceSize": { "w": 77, "h": 79 }
+    },
+    "Run2.png": {
+      "frame": { "x": 154, "y": 0, "w": 77, "h": 79 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 77, "h": 79 },
+      "sourceSize": { "w": 77, "h": 79 }
+    },
+    "Run3.png": {
+      "frame": { "x": 0, "y": 79, "w": 77, "h": 79 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 77, "h": 79 },
+      "sourceSize": { "w": 77, "h": 79 }
+    },
+    "Run4.png": {
+      "frame": { "x": 77, "y": 79, "w": 77, "h": 79 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 77, "h": 79 },
+      "sourceSize": { "w": 77, "h": 79 }
+    },
+    "Run5.png": {
+      "frame": { "x": 154, "y": 79, "w": 77, "h": 79 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 77, "h": 79 },
+      "sourceSize": { "w": 77, "h": 79 }
+    },
+    "Run6.png": {
+      "frame": { "x": 0, "y": 158, "w": 77, "h": 79 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 77, "h": 79 },
+      "sourceSize": { "w": 77, "h": 79 }
+    },
+    "Run7.png": {
+      "frame": { "x": 77, "y": 158, "w": 77, "h": 79 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 77, "h": 79 },
+      "sourceSize": { "w": 77, "h": 79 }
+    }
+  },
+  "meta": {
+    "app": "https://github.com/piskelapp/piskel/",
+    "version": "1.0",
+    "image": "Run.png",
+    "format": "RGBA8888",
+    "size": { "w": 231, "h": 237 }
+  }
+}
