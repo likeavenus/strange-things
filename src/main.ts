@@ -1,8 +1,9 @@
 import { Boot } from "./scenes/Boot";
 import { Game as MainGame } from "./scenes/Game";
 import { Preloader } from "./scenes/Preloader";
-
 import { Game, Types } from "phaser";
+import { CRTShader } from "./shaders/crt/crt";
+// import { CRTShader } from "./shaders/crt/crt";
 
 //  Find out more information about the Game Config at:
 //  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
@@ -25,8 +26,14 @@ const config: Types.Core.GameConfig = {
       },
     },
   },
+  pipeline: {
+    CRTShader,
+  },
+
   // scene: [Boot, Preloader, MainMenu, MainGame, GameOver],
   scene: [Preloader, Boot, MainGame],
 };
 
-export default new Game(config);
+const game = new Game(config);
+
+export default game;

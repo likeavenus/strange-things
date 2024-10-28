@@ -71,17 +71,18 @@ export class EnemySphere extends EnergySphere {
   handleCollision(event) {
     const pairs = event.pairs;
 
-    // Проверяем каждую пару столкновений
     pairs.forEach((pair) => {
-      // Получаем тела, участвующие в столкновении
       const { bodyA, bodyB } = pair;
 
-      // Если снаряд столкнулся со стеной (Ground)
       if (
         (bodyA.collisionFilter.category === COLLISION_CATEGORIES.EnemySphere &&
           bodyB.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
         (bodyB.collisionFilter.category === COLLISION_CATEGORIES.EnemySphere &&
-          bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player)
+          bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
+        (bodyA.collisionFilter.category === COLLISION_CATEGORIES.EnemySphere &&
+          bodyB.collisionFilter.category === COLLISION_CATEGORIES.Ground) ||
+        (bodyB.collisionFilter.category === COLLISION_CATEGORIES.EnemySphere &&
+          bodyA.collisionFilter.category === COLLISION_CATEGORIES.Ground)
       ) {
         this.destroy(true);
       }

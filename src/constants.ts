@@ -9,4 +9,7 @@ export enum COLLISION_CATEGORIES {
   Torch = 64,
   EnemySphere = 128,
   DeathCollider = 256,
+  Mimic = 512,
+  Treasure = 1024,
+  MimicAttack = 2048,
 }

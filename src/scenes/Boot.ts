@@ -13,6 +13,9 @@ export class Boot extends Scene {
   }
 
   create() {
-    this.scene.start("Game");
+    // this.scene.start("Game");
+    this.input.once("pointerdown", () => {
+      this.scene.start("Game");
+    });
   }
 }

@@ -92,6 +92,35 @@ export class Preloader extends Scene {
 
     /** sound */
     this.load.audio("footstep", "wizard/footstep.mp3");
+    this.load.audio(
+      "creepy-demon-heavy-breathing",
+      "environment/sounds/creepy-demon-heavy-breathing.wav"
+    );
+    this.load.audio(
+      "mysterious-dungeons-ambiance",
+      "environment/sounds/mysterious-dungeons-ambiance.mp3"
+    );
+
+    this.load.audio("dungeon", "environment/sounds/dungeon_.mp3");
+
+    /** mimic */
+    this.load.atlas(
+      "mimic_hidden",
+      "mimic/Mimic_Idle_Hidden.png",
+      "mimic/Mimic_Idle_Hidden.json"
+    );
+
+    this.load.atlas(
+      "mimic_open",
+      "mimic/Mimic_Open.png",
+      "mimic/Mimic_Open.json"
+    );
+
+    this.load.atlas(
+      "mimic_attack1",
+      "mimic/Mimic_Attack-1.png",
+      "mimic/Mimic_Attack-1.json"
+    );
   }
 
   create() {

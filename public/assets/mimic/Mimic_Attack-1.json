@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "Mimic_Attack-10.png": {
+      "frame": { "x": 0, "y": 0, "w": 52, "h": 30 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 30 },
+      "sourceSize": { "w": 52, "h": 30 }
+    },
+    "Mimic_Attack-11.png": {
+      "frame": { "x": 52, "y": 0, "w": 52, "h": 30 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 30 },
+      "sourceSize": { "w": 52, "h": 30 }
+    },
+    "Mimic_Attack-12.png": {
+      "frame": { "x": 0, "y": 30, "w": 52, "h": 30 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 30 },
+      "sourceSize": { "w": 52, "h": 30 }
+    },
+    "Mimic_Attack-13.png": {
+      "frame": { "x": 52, "y": 30, "w": 52, "h": 30 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 52, "h": 30 },
+      "sourceSize": { "w": 52, "h": 30 }
+    }
+  },
+  "meta": {
+    "app": "https://github.com/piskelapp/piskel/",
+    "version": "1.0",
+    "image": "Mimic_Attack-1.png",
+    "format": "RGBA8888",
+    "size": { "w": 104, "h": 60 }
+  }
+}

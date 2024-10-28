@@ -2,6 +2,8 @@ import { Scene } from "phaser";
 import { Wizard } from "../characters/wizard/Wizard";
 import { COLLISION_CATEGORIES } from "../constants";
 import { Heretic } from "../characters/heretic/Heretic";
+import { Mimic } from "../characters/mimic/Mimic";
+import { CRTShader } from "../shaders/crt/crt";
 
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
@@ -12,6 +14,9 @@ export class Game extends Scene {
   heretic!: Heretic;
   hereticGroup!: Phaser.GameObjects.Group;
   isCutscene = false;
+  mimic!: Mimic;
+  currentMusic!: Phaser.Sound.BaseSound;
+  randomSound!: Phaser.Sound.BaseSound;
 
   private topBlackBars!: Phaser.GameObjects.Rectangle;
   private bottomBlackBars!: Phaser.GameObjects.Rectangle;
@@ -22,6 +27,28 @@ export class Game extends Scene {
 
   preload() {
     this.cursors = this.input.keyboard!.createCursorKeys();
+  }
+
+  initMusic() {
+    this.currentMusic = this.sound.add("mysterious-dungeons-ambiance", {
+      volume: 0.5,
+    });
+    //this.currentMusic = this.sound.add("dungeon", {});
+
+    // this.randomSound = this.sound.add("creepy-demon-heavy-breathing", {});
+    this.randomSound = this.sound.add("creepy-demon-heavy-breathing", {
+      volume: 0.7,
+    });
+
+    this.time.addEvent({
+      loop: true,
+      delay: 20000,
+      callback: () => {
+        this.randomSound.play();
+      },
+    });
+
+    this.currentMusic.play();
   }
 
   createPlatform(x: number, y: number, vertically: boolean) {
@@ -119,8 +146,10 @@ export class Game extends Scene {
   }
 
   create() {
+    this.initMusic();
     this.camera = this.cameras.main;
     this.camera.setZoom(0.9);
+    this.camera.setPostPipeline(new CRTShader(this.game));
     this.lights.enable();
     this.projectiles = this.add.group();
 
@@ -128,14 +157,16 @@ export class Game extends Scene {
 
     this.createTorch(150, 2975);
     this.createTorch(1050, 2975);
-    this.createTorch(2350, 2975);
+    this.createTorch(2350, 3100);
     this.createTorch(1000, 1060);
+    this.createTorch(3700, 2850);
 
     this.wizard = new Wizard(this, 90, 2900, "wizard_idle");
 
     this.createMap();
 
-    this.camera.setDeadzone(160, 250);
+    // this.camera.setDeadzone(160, 250);
+    this.camera.setDeadzone(250, 250);
     this.camera.startFollow(this.wizard, true, 1, 1, -100, -30);
 
     this.light = this.lights.addLight(
@@ -158,9 +189,12 @@ export class Game extends Scene {
     });
 
     this.hereticGroup.get(1200, 2900);
-    this.hereticGroup.get(1900, 2900);
-    this.hereticGroup.get(2500, 2900);
-    this.hereticGroup.get(500, 500);
+    // this.hereticGroup.get(1900, 2900);
+    // this.hereticGroup.get(2500, 2900);
+    // this.hereticGroup.get(500, 500);
+
+    this.mimic = new Mimic(this, 3600, 2900, "mimic_hidden");
+    this.mimic = new Mimic(this, 600, 2900, "mimic_hidden");
 
     // this.heretic2 = new Heretic(this, 500, 2900, "heretic_run");
   }
@@ -205,7 +239,8 @@ export class Game extends Scene {
   }
 
   update(time: number, delta: number): void {
-    this.wizard.update(this.cursors);
+    this.wizard.update(this.cursors, time);
+    this.mimic.update(this.cursors);
     // this.hereticGroup.children.clear
     // this.heretic.update(this.cursors);
 

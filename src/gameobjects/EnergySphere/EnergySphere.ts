@@ -26,6 +26,7 @@ export class EnergySphere extends Phaser.Physics.Matter.Sprite {
     this.setCollidesWith([
       COLLISION_CATEGORIES.Enemy,
       COLLISION_CATEGORIES.Ground,
+      COLLISION_CATEGORIES.Mimic,
     ]);
 
     // Добавляем спрайт на сцену
@@ -99,6 +100,11 @@ export class EnergySphere extends Phaser.Physics.Matter.Sprite {
         (bodyA.collisionFilter.category === COLLISION_CATEGORIES.EnergySphere &&
           bodyB.collisionFilter.category === COLLISION_CATEGORIES.Enemy) ||
         (bodyA.collisionFilter.category === COLLISION_CATEGORIES.Enemy &&
+          bodyB.collisionFilter.category ===
+            COLLISION_CATEGORIES.EnergySphere) ||
+        (bodyA.collisionFilter.category === COLLISION_CATEGORIES.EnergySphere &&
+          bodyB.collisionFilter.category === COLLISION_CATEGORIES.Mimic) ||
+        (bodyA.collisionFilter.category === COLLISION_CATEGORIES.Mimic &&
           bodyB.collisionFilter.category === COLLISION_CATEGORIES.EnergySphere)
       ) {
         this.destroy(true);

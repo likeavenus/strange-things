@@ -16,10 +16,15 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
   graphics!: Phaser.GameObjects.Graphics;
   isStunned = false;
   isCutscene = false;
+  amuletOfLight!: Phaser.GameObjects.Light;
+  lightSphere!: Phaser.Physics.Matter.Image;
 
-  knockbackVelocity = 10; // Настройте по необходимости
+  knockbackVelocity = 15; // Настройте по необходимости
   knockbackDuration = 300; // Время действия отскока в миллисекундах
   knockbackTimer = 0;
+
+  private footstepTimer?: Phaser.Time.TimerEvent;
+  private footstepInterval: number = 300; // Интервал между шагами в миллисекундах
 
   constructor(
     scene: Phaser.Scene,
@@ -59,6 +64,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
       COLLISION_CATEGORIES.Ground,
       COLLISION_CATEGORIES.Enemy,
       COLLISION_CATEGORIES.EnemySphere,
+      COLLISION_CATEGORIES.MimicAttack,
     ]);
 
     scene.add.existing(this);
@@ -84,6 +90,8 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
         }
       },
     });
+
+    this.createMagicLight();
   }
 
   baseAttack() {
@@ -163,9 +171,36 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     this.scene.projectiles.add(sphere);
   }
 
-  update(cursors: Phaser.Types.Input.Keyboard.CursorKeys): void {
+  private playFootstep() {
+    if (this.body?.velocity === 0) return;
+
+    // Проигрываем случайный звук из массива
+    // const sound = Phaser.Utils.Array.GetRandom(this.footstepSounds);
+    // sound.play();
+    // this.scene.sound.play("footstep");
+
+    // Устанавливаем таймер для следующего шага
+    this.footstepTimer = this.scene.time.addEvent({
+      delay: this.footstepInterval,
+      callback: this.playFootstep,
+      callbackScope: this,
+      loop: false,
+    });
+  }
+
+  protected preUpdate(time: number, delta: number): void {
+    super.preUpdate(time, delta);
+    // if (this.amuletOfLight) {
+    //   this.updateMagicLight(delta);
+    // }
+  }
+
+  update(cursors: Phaser.Types.Input.Keyboard.CursorKeys, delta: number): void {
     this.drawMana();
     this.drawHP();
+    // if (this.amuletOfLight) {
+    //   this.updateMagicLight(delta);
+    // }
 
     if (this.hp <= 0) {
       return;
@@ -178,7 +213,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     const { left, right, up, down, space } = cursors;
 
     const jumpSpeed = 30;
-    const moveSpeed = 15;
+    const moveSpeed = 12;
 
     // Проверяем, падает ли персонаж
     if (this.body.velocity.y > 0.1) {
@@ -205,13 +240,15 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
         this.flipX = true;
       }
     } else if (!this.isTouchingGround && this.body!.velocity.y > 0) {
-      this.anims.play(`wizard_fall`, true);
       if (right.isDown) {
         this.setVelocityX(moveSpeed);
         this.flipX = false;
       } else if (left.isDown) {
         this.setVelocityX(-moveSpeed);
         this.flipX = true;
+      }
+      if (this.isFalling) {
+        this.anims.play(`wizard_fall`, true);
       }
     } else if (left.isDown) {
       this.setVelocityX(-moveSpeed);
@@ -248,23 +285,54 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     ) {
       this.currentJumpCounter = 0;
     }
-    // // Логика прыжка
-    // if (
-    //   Phaser.Input.Keyboard.JustDown(space) &&
-    //   (this.isTouchingGround || this.currentJumpCounter < this.jumpMaxCounter)
-    // ) {
-    //   this.setVelocityY(-jumpSpeed);
-    //   this.isTouchingGround = false; // Это может быть излишним, так как коллизии управляют этим флагом
-    //   this.currentJumpCounter++;
-    // }
+  }
 
-    // // Сброс счётчика прыжков при касании земли
-    // if (
-    //   this.isTouchingGround &&
-    //   this.currentJumpCounter === this.jumpMaxCounter
-    // ) {
-    //   this.currentJumpCounter = 0;
-    // }
+  createMagicLight() {
+    this.amuletOfLight = this.scene.lights.addLight(
+      this.x,
+      this.y,
+      256,
+      0xffffff,
+      2
+    );
+
+    this.lightSphere = this.scene.matter.add.image(
+      this.x,
+      this.y,
+      "red",
+      undefined,
+      {
+        isStatic: true,
+        isSensor: true,
+        collisionFilter: {
+          category: COLLISION_CATEGORIES.Disabled,
+        },
+      }
+    );
+    // this.scene.tweens.add({
+    //   targets: this.lightSphere,
+    //   x: this.x + Math.sin(this.x) + 20,
+    //   y: this.y + Math.sin(this.y) + 20,
+    //   loop: -1,
+    //   yoyo: true,
+    //   ease: "ease-out",
+    //   // onUpdate: (tween) => {
+
+    //   // },
+    // });
+  }
+
+  updateMagicLight(delta: number) {
+    if (this.amuletOfLight) {
+      this.amuletOfLight.setPosition(this.lightSphere.x, this.lightSphere.y);
+      const offsetX = Math.cos(delta) * 30 * delta;
+      const offsetY = Math.sin(delta) * 30 * delta;
+
+      const magicLightX = this.x + offsetX;
+      const magicLightY = this.y - offsetY;
+
+      this.lightSphere.setPosition(magicLightX, magicLightY);
+    }
   }
 
   slowDownTime() {
@@ -310,7 +378,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     this.applyKnockback(this.flipX ? "left" : "right");
     this.isStunned = true;
 
-    this.flashEffect();
+    // this.flashEffect();
 
     this.on("animationcomplete", (e) => {
       if (e.key === "wizard_hit") {
@@ -355,7 +423,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
 
     // Установка новой скорости персонажа
     this.setVelocityX(velocityX);
-    this.setVelocityY(velocityY);
+    // this.setVelocityY(velocityY);
 
     // Запуск таймера для окончания эффекта отскока
     this.knockbackTimer = this.knockbackDuration;
@@ -427,6 +495,10 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
         (bodyA.collisionFilter.category === COLLISION_CATEGORIES.EnemySphere &&
           bodyB.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
         (bodyB.collisionFilter.category === COLLISION_CATEGORIES.EnemySphere &&
+          bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
+        (bodyA.collisionFilter.category === COLLISION_CATEGORIES.MimicAttack &&
+          bodyB.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
+        (bodyB.collisionFilter.category === COLLISION_CATEGORIES.MimicAttack &&
           bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player)
       ) {
         this.scene.cameras.main.shake(500, 0.009);
