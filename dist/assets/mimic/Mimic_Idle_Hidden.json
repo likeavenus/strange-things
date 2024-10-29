@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "Mimic_Idle_Hidden0.png": {
+      "frame": { "x": 0, "y": 0, "w": 26, "h": 25 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 25 },
+      "sourceSize": { "w": 26, "h": 25 }
+    },
+    "Mimic_Idle_Hidden1.png": {
+      "frame": { "x": 26, "y": 0, "w": 26, "h": 25 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 25 },
+      "sourceSize": { "w": 26, "h": 25 }
+    },
+    "Mimic_Idle_Hidden2.png": {
+      "frame": { "x": 0, "y": 25, "w": 26, "h": 25 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 25 },
+      "sourceSize": { "w": 26, "h": 25 }
+    },
+    "Mimic_Idle_Hidden3.png": {
+      "frame": { "x": 26, "y": 25, "w": 26, "h": 25 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 25 },
+      "sourceSize": { "w": 26, "h": 25 }
+    }
+  },
+  "meta": {
+    "app": "https://github.com/piskelapp/piskel/",
+    "version": "1.0",
+    "image": "Mimic_Idle_Hidden.png",
+    "format": "RGBA8888",
+    "size": { "w": 52, "h": 50 }
+  }
+}

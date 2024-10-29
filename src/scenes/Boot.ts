@@ -14,6 +14,11 @@ export class Boot extends Scene {
 
   create() {
     // this.scene.start("Game");
+    this.add.text(
+      this.game.canvas.width / 2,
+      this.game.canvas.height / 2,
+      "Start"
+    );
     this.input.once("pointerdown", () => {
       this.scene.start("Game");
     });

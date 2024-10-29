@@ -149,6 +149,7 @@ export class Game extends Scene {
     this.initMusic();
     this.camera = this.cameras.main;
     this.camera.setZoom(0.9);
+    this.camera.fadeIn(1000);
     this.camera.setPostPipeline(new CRTShader(this.game));
     this.lights.enable();
     this.projectiles = this.add.group();
@@ -161,7 +162,7 @@ export class Game extends Scene {
     this.createTorch(1000, 1060);
     this.createTorch(3700, 2850);
 
-    this.wizard = new Wizard(this, 90, 2900, "wizard_idle");
+    this.wizard = new Wizard(this, 90, 2975, "wizard_idle");
 
     this.createMap();
 

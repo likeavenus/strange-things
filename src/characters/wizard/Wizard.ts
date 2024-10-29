@@ -132,6 +132,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     }
 
     this.isAttacking = true;
+    this.scene.sound.play("energy-attack");
     this.mana -= 1;
     this.setOrigin(0.4, 0.6);
     // Останавливаем движение
@@ -198,9 +199,9 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
   update(cursors: Phaser.Types.Input.Keyboard.CursorKeys, delta: number): void {
     this.drawMana();
     this.drawHP();
-    // if (this.amuletOfLight) {
-    //   this.updateMagicLight(delta);
-    // }
+    if (this.amuletOfLight) {
+      this.updateMagicLight(delta);
+    }
 
     if (this.hp <= 0) {
       return;
@@ -325,13 +326,18 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
   updateMagicLight(delta: number) {
     if (this.amuletOfLight) {
       this.amuletOfLight.setPosition(this.lightSphere.x, this.lightSphere.y);
-      const offsetX = Math.cos(delta) * 30 * delta;
-      const offsetY = Math.sin(delta) * 30 * delta;
 
-      const magicLightX = this.x + offsetX;
-      const magicLightY = this.y - offsetY;
+      this.lightSphere.setPosition(
+        this.x + (this.flipX ? -70 : 70),
+        this.y - 70
+      );
+      // const offsetX = Math.cos(delta) * 30 * delta;
+      // const offsetY = Math.sin(delta) * 30 * delta;
 
-      this.lightSphere.setPosition(magicLightX, magicLightY);
+      // const magicLightX = this.x + offsetX;
+      // const magicLightY = this.y - offsetY;
+
+      // this.lightSphere.setPosition(magicLightX, magicLightY);
     }
   }
 
@@ -374,6 +380,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     this.isAttacking = false;
 
     this.hp -= 1;
+    this.scene.sound.play("skull-crash");
 
     this.applyKnockback(this.flipX ? "left" : "right");
     this.isStunned = true;

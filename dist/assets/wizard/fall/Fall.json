@@ -1,0 +1,25 @@
+{
+  "frames": {
+    "Fall0.png": {
+      "frame": { "x": 0, "y": 0, "w": 59, "h": 100 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 59, "h": 100 },
+      "sourceSize": { "w": 59, "h": 100 }
+    },
+    "Fall1.png": {
+      "frame": { "x": 59, "y": 0, "w": 59, "h": 100 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 59, "h": 100 },
+      "sourceSize": { "w": 59, "h": 100 }
+    }
+  },
+  "meta": {
+    "app": "https://github.com/piskelapp/piskel/",
+    "version": "1.0",
+    "image": "Fall.png",
+    "format": "RGBA8888",
+    "size": { "w": 118, "h": 100 }
+  }
+}

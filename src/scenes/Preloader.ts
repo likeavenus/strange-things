@@ -102,6 +102,9 @@ export class Preloader extends Scene {
     );
 
     this.load.audio("dungeon", "environment/sounds/dungeon_.mp3");
+    this.load.audio("skull-crash", "wizard/skull-crash.mp3");
+    this.load.audio("mimic-attack1", "mimic/mimic-attack1.mp3");
+    this.load.audio("energy-attack", "wizard/energy-attack.mp3");
 
     /** mimic */
     this.load.atlas(

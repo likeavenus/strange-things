@@ -60,6 +60,9 @@ export class Mimic extends Phaser.Physics.Matter.Sprite {
     let hitbox: Phaser.Physics.Matter.Factory["rectangle"];
 
     this.scene.time.delayedCall(250, () => {
+      this.scene.sound.setDetune(Math.random() * 2000);
+      this.scene.sound.stopByKey("mimic-attack1");
+      this.scene.sound.play("mimic-attack1");
       hitbox = this.scene.matter.add.rectangle(this.x - 50, this.y, 100, 100, {
         isSensor: true,
         isStatic: true,
