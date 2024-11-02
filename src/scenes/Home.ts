@@ -166,13 +166,13 @@ export class Home extends Phaser.Scene {
   create() {
     this.setupCamera();
     this.wizard = new Wizard(this, 90, 1400, "wizard_idle");
-    // this.addStartNoise();
+    this.addStartNoise();
 
     this.input.keyboard?.on("keydown", this.toggleTextInPaper, this);
     this.createPaperScroll();
     this.createMap();
     // this.addBackground();
-    // this.addBgMusic();
+    this.addBgMusic();
     this.createInfoPapers();
 
     this.projectiles = this.add.group();
