@@ -20,7 +20,10 @@ export class Boot extends Scene {
       "Start"
     );
     this.input.once("pointerdown", () => {
-      this.scene.start("Game");
+      this.cameras.main.fadeOut(800);
+      this.time.delayedCall(800, () => {
+        this.scene.start("Home");
+      });
     });
   }
 }

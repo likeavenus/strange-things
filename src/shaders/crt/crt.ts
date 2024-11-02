@@ -1,4 +1,3 @@
-// CRTShader.ts
 import Phaser from "phaser";
 
 const CRT_FRAGMENT_SHADER = `
@@ -14,9 +13,9 @@ void main(void) {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
 
     // Цветовые каналы с небольшими искажениями
-    float r = texture2D(uMainSampler, uv + sin(uv.y * 10.0 + time * 5.0) * 0.001).r;
-    float g = texture2D(uMainSampler, uv + sin(uv.y * 10.0 + time * 5.0 + 2.0) * 0.001).g;
-    float b = texture2D(uMainSampler, uv + sin(uv.y * 10.0 + time * 5.0 + 4.0) * 0.001).b;
+    float r = texture2D(uMainSampler, uv + sin(uv.y * 10.0 + time * 5.0) * 0.002).r;
+    float g = texture2D(uMainSampler, uv + sin(uv.y * 10.0 + time * 5.0 + 2.0) * 0.002).g;
+    float b = texture2D(uMainSampler, uv + sin(uv.y * 10.0 + time * 5.0 + 4.0) * 0.002).b;
 
     // Добавляем сканирующие линии
     float scanline = sin(uv.y * resolution.y * 3.1415) * 0.02;

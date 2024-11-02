@@ -27,6 +27,42 @@ export const createHereticAnims = (
     frameRate: 10,
   });
 
+  anims.create({
+    key: "heretic_death",
+    frames: anims.generateFrameNames("heretic_death", {
+      start: 0,
+      end: 6,
+      prefix: "Death",
+      suffix: ".png",
+    }),
+    repeat: 0,
+    frameRate: 10,
+  });
+
+  anims.create({
+    key: "heretic_idle",
+    frames: anims.generateFrameNames("heretic_idle", {
+      start: 0,
+      end: 7,
+      prefix: "Idle",
+      suffix: ".png",
+    }),
+    repeat: 0,
+    frameRate: 10,
+  });
+
+  anims.create({
+    key: "heretic_hit",
+    frames: anims.generateFrameNames("heretic_hit", {
+      start: 0,
+      end: 2,
+      prefix: "hit",
+      suffix: ".png",
+    }),
+    repeat: 0,
+    frameRate: 5,
+  });
+
   //   anims.create({
   //     key: "wizard_jump",
   //     frames: anims.generateFrameNames("wizard_jump", {

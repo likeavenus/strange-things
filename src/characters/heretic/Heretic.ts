@@ -3,10 +3,13 @@ import Phaser from "phaser";
 import { createHereticAnims } from "./anims";
 import { COLLISION_CATEGORIES } from "../../constants";
 import { EnemySphere } from "../../gameobjects/EnergySphere/EnemySphere";
+import { Wizard } from "../wizard/Wizard";
 
 export class Heretic extends Phaser.Physics.Matter.Sprite {
+  hp = 100;
   isTouchingGround = false;
   isAttacking = false;
+  isStunned = false;
   isFalling = false;
   jumpMaxCounter = 2;
   currentJumpCounter = 0;
@@ -57,9 +60,17 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
       loop: true,
       delay: 1600,
       callback: () => {
-        if (!this.isDead) {
-          this.direction = -this.direction;
+        if (this.isDead) return;
+        if (this.isStunned) return;
+        if (this.isAttacking) return;
+
+        const wizard = this.scene.children.getByName("wizard") as Wizard;
+
+        if (wizard.hp <= 0) {
+          return;
         }
+
+        this.direction = -this.direction;
       },
     });
 
@@ -67,41 +78,61 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
       loop: true,
       delay: 2000,
       callback: () => {
-        if (!this.isDead) {
-          const wizard = this.scene.children.getByName("wizard");
+        if (this.isDead) return;
+        if (this.isStunned) return;
+        if (this.isAttacking) return;
 
-          if (
-            Phaser.Math.Distance.Between(wizard.x, wizard.y, this.x, this.y) <
-            700
-          ) {
-            this.rangeAttack();
+        const wizard = this.scene.children.getByName("wizard") as Wizard;
+
+        if (wizard.hp <= 0) {
+          return;
+        }
+
+        if (
+          Phaser.Math.Distance.Between(wizard.x, wizard.y, this.x, this.y) < 600
+        ) {
+          if (wizard.x > this.x) {
+            this.direction = -1;
+          } else {
+            this.direction = 1;
           }
+          this.rangeAttack();
         }
       },
     });
+
+    // this.on("animationcomplete", (e) => {
+    //   if (e.key === "heretic_death") {
+    //     console.log("death");
+    //   }
+    // });
   }
 
-  baseAttack() {
-    if (this.isAttacking || !this.isTouchingGround) {
-      return;
-    }
+  // baseAttack() {
+  //   if (this.isAttacking || !this.isTouchingGround) {
+  //     return;
+  //   }
 
-    this.setVelocity(0);
+  //   if (this.isStunned) {
+  //     return;
+  //   }
 
-    this.isAttacking = true;
-    this.setOrigin(0.5, 0.7);
-    this.anims.play("wizard_attack1");
+  //   this.setVelocity(0);
 
-    this.once("animationcomplete", (e) => {
-      if (e.key === "wizard_attack1") {
-        this.isAttacking = false;
+  //   this.isAttacking = true;
+  //   this.setOrigin(0.5, 0.35);
+  //   this.anims.play("wizard_attack1");
 
-        // Возвращаемся к анимации ожидания или другой нужной вам анимации
-        this.setOrigin(0.5, 0.5);
-        this.anims.play("wizard_idle", true);
-      }
-    });
-  }
+  //   this.once("animationcomplete", (e) => {
+  //     if (e.key === "wizard_attack1") {
+  //       this.isAttacking = false;
+
+  //       // Возвращаемся к анимации ожидания или другой нужной вам анимации
+  //       this.setOrigin(0.5, 0.5);
+  //       this.anims.play("wizard_idle", true);
+  //     }
+  //   });
+  // }
 
   increaseFallSpeed() {
     // Увеличиваем скорость падения
@@ -140,15 +171,6 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
     // Определяем направление взгляда персонажа
     const direction = this.flipX ? -1 : 1;
 
-    // Создаем энергетический шар
-    // const sphere = new EnergySphere(
-    //   this.scene,
-    //   direction > 0 ? this.x + 30 : this.x - 30,
-    //   this.y - this.height / 2 + 15,
-    //   "red",
-    //   direction
-    // );
-
     const sphere = new EnemySphere(
       this.scene,
       direction > 0 ? this.x + 30 : this.x - 30,
@@ -161,84 +183,21 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
     this.scene.projectiles.add(sphere);
   }
 
-  //   update(cursors: Phaser.Types.Input.Keyboard.CursorKeys): void {
-  //     const { left, right, up, down, space } = cursors;
-
-  //     const jumpSpeed = 30;
-  //     const moveSpeed = 15;
-
-  //     // Проверяем, падает ли персонаж
-  //     if (this.body.velocity.y > 0.1) {
-  //       this.isFalling = true;
-  //     } else {
-  //       this.isFalling = false;
-  //     }
-
-  //     if (this.isFalling) {
-  //       this.increaseFallSpeed();
-  //     }
-
-  //     if (this.isAttacking) {
-  //       return;
-  //     }
-
-  //     if (!this.isTouchingGround && this.body!.velocity.y < 0) {
-  //       this.anims.play(`wizard_jump`, true);
-  //       if (right.isDown) {
-  //         this.setVelocityX(moveSpeed);
-  //         this.flipX = false;
-  //       } else if (left.isDown) {
-  //         this.setVelocityX(-moveSpeed);
-  //         this.flipX = true;
-  //       }
-  //     } else if (!this.isTouchingGround && this.body!.velocity.y > 0) {
-  //       this.anims.play(`wizard_fall`, true);
-  //       if (right.isDown) {
-  //         this.setVelocityX(moveSpeed);
-  //         this.flipX = false;
-  //       } else if (left.isDown) {
-  //         this.setVelocityX(-moveSpeed);
-  //         this.flipX = true;
-  //       }
-  //     } else if (left.isDown) {
-  //       this.setVelocityX(-moveSpeed);
-  //       this.flipX = true;
-  //       this.anims.play(`wizard_run`, true);
-  //     } else if (right.isDown) {
-  //       this.setVelocityX(moveSpeed);
-  //       this.flipX = false;
-  //       this.anims.play(`wizard_run`, true);
-  //     } else {
-  //       this.setVelocityX(0);
-  //       this.anims.play(`wizard_idle`, true);
-  //       // console.log("this.isTouchingGround", this.isTouchingGround);
-
-  //       // if (!this.isTouchingGround && this.body!.velocity.y > 0) {
-  //       //   // this.anims.play("ksenia_down", true);
-  //       //   console.log("idle");
-  //       // }
-  //     }
-  //     if (
-  //       Phaser.Input.Keyboard.JustDown(space) &&
-  //       (this.isTouchingGround ||
-  //         (!this.isTouchingGround &&
-  //           this.currentJumpCounter < this.jumpMaxCounter))
-  //     ) {
-  //       this.setVelocityY(-jumpSpeed);
-  //       this.isTouchingGround = false;
-  //       this.currentJumpCounter++;
-  //     }
-
-  //     if (
-  //       this.currentJumpCounter === this.jumpMaxCounter &&
-  //       this.isTouchingGround
-  //     ) {
-  //       this.currentJumpCounter = 0;
-  //     }
-  //   }
   update(cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
-    // if (this.body)
-    if (this.isAttacking || this.isDead) return;
+    if (this.isStunned) return;
+    if (this.isAttacking) return;
+    if (this.isDead) return;
+    if (this.hp <= 0) return;
+
+    const wizard = this.scene.children.getByName("wizard") as Wizard;
+
+    if (wizard.hp <= 0) {
+      this.anims.play("heretic_idle", true);
+      this.setOrigin(0.5, 0.68);
+
+      return;
+    }
+
     const speed = 10;
 
     if (this) {
@@ -249,6 +208,41 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
         this.flipX = true;
         this.setVelocityX(-speed);
       }
+    }
+  }
+
+  getDamage() {
+    this.isAttacking = false;
+
+    this.hp -= 10;
+    this.scene.sound.play("skull-crash");
+
+    this.isStunned = true;
+
+    this.on("animationcomplete", (e) => {
+      if (e.key === "heretic_hit" && !this.isDead) {
+        this.isStunned = false;
+        this.anims.play("heretic_run");
+        this.setOrigin(0.5, 0.8);
+      }
+    });
+
+    if (this.hp <= 0) {
+      this.isDead = true;
+      this.anims.play("heretic_death", true);
+      this.setCollisionCategory(COLLISION_CATEGORIES.DeathCollider);
+      this.setOrigin(0.5, 0.725);
+    } else {
+      this.anims.play("heretic_hit");
+      this.setOrigin(0.5, 0.6);
+    }
+
+    if (!this.isDead) {
+      this.scene.time.delayedCall(500, () => {
+        this.anims.play("heretic_run");
+        this.setOrigin(0.5, 0.5);
+        this.isStunned = false;
+      });
     }
   }
 
@@ -264,16 +258,7 @@ export class Heretic extends Phaser.Physics.Matter.Sprite {
         (bodyB.collisionFilter.category === COLLISION_CATEGORIES.EnergySphere &&
           bodyA.collisionFilter.category === COLLISION_CATEGORIES.Enemy)
       ) {
-        // this.applyForce(new Phaser.Math.Vector2(1000, 1000));
-        // this.setPosition(this.x - 50, this.y - 200);
-        // const wizard = this.scene.children.getByName("wizard");
-        this.isDead = true;
-        this.destroy(true);
-
-        // this.applyForceFrom(
-        //   new Phaser.Math.Vector2(wizard.x, wizard.y),
-        //   new Phaser.Math.Vector2(10000, 10000)
-        // );
+        this.getDamage();
       }
     });
   }

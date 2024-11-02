@@ -1,13 +1,23 @@
 import { Scene } from "phaser";
 import { Wizard } from "../characters/wizard/Wizard";
-import { COLLISION_CATEGORIES } from "../constants";
+import { COLLISION_CATEGORIES, papersDungeon } from "../constants";
 import { Heretic } from "../characters/heretic/Heretic";
 import { Mimic } from "../characters/mimic/Mimic";
 import { CRTShader } from "../shaders/crt/crt";
+import { PaperNineSlice } from "../gameobjects/Scroll/Scroll";
+import { VortexPostFX } from "../shaders/teleportEffect/TeleportEffect";
 
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   wizard: Wizard;
+  /** Картинка свитка с мастшабированием nineslice */
+  paper: PaperNineSlice;
+  /** Текущий текст свитка считываемый у */
+  currentText: string = "";
+  /** Объект текста в свитке */
+  paperTextObject: Phaser.GameObjects.Text;
+  /** Группа свитков разбросанных оп уровню */
+  private papersGroup: Phaser.GameObjects.Group;
   cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   projectiles!: Phaser.GameObjects.Group;
   light!: Phaser.GameObjects.Light;
@@ -145,8 +155,34 @@ export class Game extends Scene {
     torch1.setCollisionCategory(COLLISION_CATEGORIES.Torch);
   }
 
+  toggleTextInPaper(e) {
+    if (e.code === "Escape" || e.code === "KeyE") {
+      this.paperTextObject.setText(this.currentText);
+      this.paperTextObject.setVisible(
+        this.paperTextObject.visible ? false : true
+      );
+    }
+  }
+
+  /** TODO: не работате обратная анимация телепорта */
+  initPortalEffect() {
+    const vortexPipeline = new VortexPostFX(this.game, 4);
+    this.cameras.main.setPostPipeline(vortexPipeline);
+    // const pipeline = this.cameras.main.getPostPipeline(
+    //   "VortexPostFX"
+    // ) as VortexPostFX;
+    console.log("vortexPipeline: ", vortexPipeline);
+    // vortexPipeline.setTime(maxTime);
+    vortexPipeline.setTimeDirection(-1);
+  }
+
   create() {
     this.initMusic();
+    this.createPaperScroll();
+    this.createInfoPapers();
+    // this.initPortalEffect();
+
+    this.input.keyboard?.on("keydown", this.toggleTextInPaper, this);
     this.camera = this.cameras.main;
     this.camera.setZoom(0.9);
     this.camera.fadeIn(1000);
@@ -178,26 +214,16 @@ export class Game extends Scene {
       1
     );
 
-    // this.heretic = new Heretic(this, 2500, 2900, "heretic_run");
-
     this.hereticGroup = this.add.group({
       classType: Heretic,
       key: "heretic",
       runChildUpdate: true,
-      // setScale: { x: 3, y: 3 },
-      // createMultipleCallback: () => {},
-      // createCallback: (item) => {},
+      createCallback(item: Heretic) {
+        item.setPosition(1000, 2900);
+      },
     });
 
-    this.hereticGroup.get(1200, 2900);
-    // this.hereticGroup.get(1900, 2900);
-    // this.hereticGroup.get(2500, 2900);
-    // this.hereticGroup.get(500, 500);
-
     this.mimic = new Mimic(this, 3600, 2900, "mimic_hidden");
-    this.mimic = new Mimic(this, 600, 2900, "mimic_hidden");
-
-    // this.heretic2 = new Heretic(this, 500, 2900, "heretic_run");
   }
 
   // Функция для создания кинорамок
@@ -239,6 +265,92 @@ export class Game extends Scene {
     });
   }
 
+  createPaperScroll() {
+    this.paper = new PaperNineSlice(
+      this,
+      this.game.canvas.width / 2,
+      this.game.canvas.height / 2,
+      "paper",
+      undefined,
+      600,
+      700,
+      32,
+      32,
+      32,
+      32
+    );
+
+    this.paperTextObject = this.add.text(
+      //   this.paper.width / 2,
+      //   this.paper.height / 3,
+      this.scene.scene.game.canvas.width / 2 - 180,
+      this.scene.scene.game.canvas.height / 3.2,
+
+      this.currentText,
+      {
+        fontFamily: "Georgia", // Ваш шрифт
+        fontSize: "20px", // Размер шрифта
+        color: "#000000", // Цвет текста
+        wordWrap: { width: this.paper.width - 205, useAdvancedWrap: true }, // Перенос слов
+        align: "left", // Выравнивание текста
+      }
+    );
+    this.paperTextObject.setScrollFactor(0).setVisible(false);
+
+    this.paperTextObject.setDepth(300);
+  }
+
+  /** создание + разброс свитков по карте */
+  createInfoPapers() {
+    this.papersGroup = this.add.group();
+
+    for (let i = 0; i < papersDungeon.length; i++) {
+      const obj = this.matter.add.image(
+        papersDungeon[i].x,
+        papersDungeon[i].y,
+        "info-paper",
+        undefined,
+        {
+          isStatic: true,
+          isSensor: true,
+          label: "info-paper",
+        }
+      );
+      obj.setData("paper-text", papersDungeon[i].text);
+      obj.setName("info-paper").setScale(0.03).setDepth(150);
+      this.papersGroup.add(obj);
+
+      // this.matter.world.on(
+      //   "collisionstart",
+      //   (event) => {
+      //     event.pairs.forEach((pair) => {
+      //       var bodyA = pair.bodyA;
+      //       var bodyB = pair.bodyB;
+      //       var gameObjectA = bodyA.gameObject;
+      //       var gameObjectB = bodyB.gameObject;
+
+      //       if (
+      //         (gameObjectA === this.wizard &&
+      //           this.papersGroup.contains(gameObjectB)) ||
+      //         (gameObjectB === this.wizard &&
+      //           this.papersGroup.contains(gameObjectA))
+      //       ) {
+      //         var collidedImage = this.papersGroup.contains(gameObjectA)
+      //           ? gameObjectA
+      //           : gameObjectB;
+
+      //         if (collidedImage && collidedImage.active) {
+      //           // collidedImage.destroy();
+      //           // this.papersGroup.remove(collidedImage);
+      //         }
+      //       }
+      //     });
+      //   },
+      //   this
+      // );
+    }
+  }
+
   update(time: number, delta: number): void {
     this.wizard.update(this.cursors, time);
     this.mimic.update(this.cursors);
@@ -251,5 +363,34 @@ export class Game extends Scene {
     this.projectiles.children.each(function (sphere) {
       sphere.update();
     }, this);
+
+    let isNearAnyItem = false;
+
+    this.papersGroup.getChildren().forEach((item) => {
+      const typedItem = item as Phaser.Physics.Matter.Image;
+
+      if (
+        Phaser.Math.Distance.Between(
+          this.wizard.x,
+          this.wizard.y,
+          typedItem.x,
+          typedItem.y
+        ) < 100
+      ) {
+        this.wizard.eKeyText
+          .setPosition(typedItem.x, typedItem.y - 120)
+          .setVisible(true);
+        this.currentText = item.getData("paper-text");
+
+        // Устанавливаем флаг, что мы рядом с хотя бы одним свитком
+        isNearAnyItem = true;
+      }
+    });
+
+    // Если после проверки всех свитков мы не рядом ни с одним
+    if (!isNearAnyItem) {
+      this.wizard.eKeyText.setVisible(false);
+      this.currentText = "";
+    }
   }
 }

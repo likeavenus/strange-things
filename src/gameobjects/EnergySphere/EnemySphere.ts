@@ -13,7 +13,7 @@ export class EnemySphere extends EnergySphere {
     super(scene, x, y, texture, direction);
     this.direction = direction;
 
-    this.setTint(0x4b0082);
+    this.setTint(0x4b0082).setDepth(150);
 
     this.setCollisionCategory(COLLISION_CATEGORIES.EnemySphere);
     this.setCollidesWith([

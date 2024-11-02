@@ -24,7 +24,7 @@ export const createWizardAnims = (
       suffix: ".png",
     }),
     repeat: -1,
-    frameRate: 10,
+    frameRate: 14,
   });
 
   anims.create({

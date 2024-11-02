@@ -3,6 +3,9 @@ import { Game as MainGame } from "./scenes/Game";
 import { Preloader } from "./scenes/Preloader";
 import { Game, Types } from "phaser";
 import { CRTShader } from "./shaders/crt/crt";
+import { Home } from "./scenes/Home";
+import { VortexPostFX } from "./shaders/teleportEffect/TeleportEffect";
+// import { TeleportShader } from "./shaders/teleportEffect/TeleportEffect";
 // import { CRTShader } from "./shaders/crt/crt";
 
 //  Find out more information about the Game Config at:
@@ -28,10 +31,11 @@ const config: Types.Core.GameConfig = {
   },
   pipeline: {
     CRTShader,
+    VortexPostFX,
   },
 
-  // scene: [Boot, Preloader, MainMenu, MainGame, GameOver],
-  scene: [Preloader, Boot, MainGame],
+  // scene: [Preloader, Boot, MainGame],
+  scene: [Preloader, Boot, Home, MainGame],
 };
 
 const game = new Game(config);

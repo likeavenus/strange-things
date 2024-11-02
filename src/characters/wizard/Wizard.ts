@@ -2,20 +2,29 @@ import Phaser from "phaser";
 import { createWizardAnims } from "./anims";
 import { EnergySphere } from "../../gameobjects/EnergySphere/EnergySphere";
 import { COLLISION_CATEGORIES } from "../../constants";
+import { PaperNineSlice } from "../../gameobjects/Scroll/Scroll";
 
 export class Wizard extends Phaser.Physics.Matter.Sprite {
   isTouchingGround = false;
   isAttacking = false;
   isFalling = false;
-  jumpMaxCounter = 2;
-  currentJumpCounter = 0;
-  hp = 5;
-  maxHP = 10;
-  mana = 2; // Текущее значение маны (от 0 до 6)
-  maxMana = 5;
-  graphics!: Phaser.GameObjects.Graphics;
   isStunned = false;
   isCutscene = false;
+  public isTeleported = false;
+  public isReading = false;
+  eKeyText: Phaser.GameObjects.Text;
+  isRunning = false;
+
+  jumpMaxCounter = 2;
+  currentJumpCounter = 0;
+
+  hp = 10;
+  maxHP = 10;
+  mana = 4; // Текущее значение маны (от 0 до 6)
+  maxMana = 6;
+
+  graphics!: Phaser.GameObjects.Graphics;
+
   amuletOfLight!: Phaser.GameObjects.Light;
   lightSphere!: Phaser.Physics.Matter.Image;
 
@@ -47,7 +56,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     createWizardAnims(scene.anims);
     this.anims.play("wizard_idle");
 
-    this.setScale(2);
+    this.setScale(2).setDepth(150);
     this.setFixedRotation();
 
     // this.setOnCollide((data) => {
@@ -56,8 +65,9 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     //   //   const { bodyA, bodyB } = data;
     // });
 
-    scene!.input!.keyboard!.on("keydown-E", this.baseAttack, this);
+    scene!.input!.keyboard!.on("keydown-Q", this.baseAttack, this);
     scene!.input!.keyboard!.on("keydown-F", this.rangeAttack, this);
+    scene!.input!.keyboard!.on("keydown", this.toggleScrollPaper, this);
 
     this.setCollisionCategory(COLLISION_CATEGORIES.Player);
     this.setCollidesWith([
@@ -65,6 +75,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
       COLLISION_CATEGORIES.Enemy,
       COLLISION_CATEGORIES.EnemySphere,
       COLLISION_CATEGORIES.MimicAttack,
+      COLLISION_CATEGORIES.Portal,
     ]);
 
     scene.add.existing(this);
@@ -79,7 +90,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     scene.matter.world.on("collisionend", this.handleCollisionEnd, this);
 
     this.graphics = scene.add.graphics();
-    this.graphics.setDepth(100);
+    this.graphics.setDepth(150);
 
     scene.time.addEvent({
       loop: true,
@@ -92,6 +103,9 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     });
 
     this.createMagicLight();
+
+    this.eKeyText = this.scene.add.text(this.x + 20, this.y - 70, "press E");
+    this.eKeyText.setVisible(false).setDepth(160);
   }
 
   baseAttack() {
@@ -132,7 +146,9 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     }
 
     this.isAttacking = true;
+    // this.scene.sound.setDetune(-1000);
     this.scene.sound.play("energy-attack");
+
     this.mana -= 1;
     this.setOrigin(0.4, 0.6);
     // Останавливаем движение
@@ -173,34 +189,47 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
   }
 
   private playFootstep() {
-    if (this.body?.velocity === 0) return;
+    this.scene.sound.play("footstep", { volume: 1 });
+  }
 
-    // Проигрываем случайный звук из массива
-    // const sound = Phaser.Utils.Array.GetRandom(this.footstepSounds);
-    // sound.play();
-    // this.scene.sound.play("footstep");
+  private handleFootsteps() {
+    // Проверяем, движется ли персонаж по горизонтали или вертикали
 
-    // Устанавливаем таймер для следующего шага
-    this.footstepTimer = this.scene.time.addEvent({
-      delay: this.footstepInterval,
-      callback: this.playFootstep,
-      callbackScope: this,
-      loop: false,
-    });
+    if (this.isRunning && !this.footstepTimer) {
+      // Если персонаж движется и таймер не запущен, запускаем таймер
+      this.footstepTimer = this.scene.time.addEvent({
+        delay: this.footstepInterval,
+        callback: this.playFootstep,
+        callbackScope: this,
+        loop: true,
+      });
+    } else if (!this.isRunning && this.footstepTimer) {
+      // Если персонаж остановился и таймер запущен, останавливаем таймер
+      this.footstepTimer.remove();
+      this.footstepTimer = null;
+    }
   }
 
   protected preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
-    // if (this.amuletOfLight) {
-    //   this.updateMagicLight(delta);
-    // }
   }
 
   update(cursors: Phaser.Types.Input.Keyboard.CursorKeys, delta: number): void {
     this.drawMana();
     this.drawHP();
+
+    this.handleFootsteps();
+
     if (this.amuletOfLight) {
       this.updateMagicLight(delta);
+    }
+
+    if (this.isReading) {
+      return;
+    }
+
+    if (this.isTeleported) {
+      return;
     }
 
     if (this.hp <= 0) {
@@ -209,6 +238,10 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
 
     if (this.isStunned) {
       return;
+    }
+
+    if (this.isTouchingGround && this.body?.velocity.x <= 0) {
+      this.isRunning = false;
     }
 
     const { left, right, up, down, space } = cursors;
@@ -234,9 +267,12 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     if (!this.isTouchingGround && this.body!.velocity.y < 0) {
       this.anims.play(`wizard_jump`, true);
       if (right.isDown) {
+        this.isRunning = false;
         this.setVelocityX(moveSpeed);
         this.flipX = false;
       } else if (left.isDown) {
+        this.isRunning = false;
+
         this.setVelocityX(-moveSpeed);
         this.flipX = true;
       }
@@ -252,10 +288,12 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
         this.anims.play(`wizard_fall`, true);
       }
     } else if (left.isDown) {
+      this.isRunning = true;
       this.setVelocityX(-moveSpeed);
       this.flipX = true;
       this.anims.play(`wizard_run`, true);
     } else if (right.isDown) {
+      this.isRunning = true;
       this.setVelocityX(moveSpeed);
       this.flipX = false;
       this.anims.play(`wizard_run`, true);
@@ -297,19 +335,15 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
       2
     );
 
-    this.lightSphere = this.scene.matter.add.image(
-      this.x,
-      this.y,
-      "red",
-      undefined,
-      {
+    this.lightSphere = this.scene.matter.add
+      .image(this.x, this.y, "red", undefined, {
         isStatic: true,
         isSensor: true,
         collisionFilter: {
           category: COLLISION_CATEGORIES.Disabled,
         },
-      }
-    );
+      })
+      .setDepth(150);
     // this.scene.tweens.add({
     //   targets: this.lightSphere,
     //   x: this.x + Math.sin(this.x) + 20,
@@ -341,6 +375,22 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     }
   }
 
+  toggleScrollPaper(e) {
+    if (e.code === "Escape" || e.code === "KeyE") {
+      const paperScroll = this.scene.children.getByName(
+        "scroll"
+      ) as PaperNineSlice;
+
+      if (paperScroll.visible) {
+        paperScroll.hideScroll();
+        this.isReading = false;
+      } else if (this.eKeyText.visible) {
+        paperScroll.showScroll();
+        this.isReading = true;
+      }
+    }
+  }
+
   slowDownTime() {
     // this.scene.time.scale = 0.5; // Устанавливаем временной масштаб в 0.5 (замедление в 2 раза)
     // console.log("slow", this.scene.matter.world);
@@ -353,29 +403,6 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     });
   }
 
-  flashEffect() {
-    const flashDuration = 500; // Общая длительность эффекта в миллисекундах
-    const flashInterval = 50; // Интервал мерцания в миллисекундах
-    const flashes = Math.floor(flashDuration / flashInterval);
-
-    const flashTimeline = this.scene.add.timeline({});
-
-    for (let i = 0; i < flashes; i++) {
-      // flashTimeline.add({
-      //   targets: this,
-      //   tint: i % 2 === 0 ? 0x000000 : 0xffffff,
-      //   duration: flashInterval,
-      // });
-      this.setTint(i % 2 === 0 ? 0x000000 : 0xffffff);
-    }
-    // animationcomplete
-    // flashTimeline.on("complete", () => {
-    //   this.clearTint();
-    // });
-
-    // flashTimeline.play();
-  }
-
   getDamage() {
     this.isAttacking = false;
 
@@ -385,7 +412,9 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
     this.applyKnockback(this.flipX ? "left" : "right");
     this.isStunned = true;
 
-    // this.flashEffect();
+    this.scene.time.delayedCall(500, () => {
+      this.isStunned = false;
+    });
 
     this.on("animationcomplete", (e) => {
       if (e.key === "wizard_hit") {
@@ -395,6 +424,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
 
     if (this.hp <= 0) {
       this.anims.play("wizard_death", true);
+      this.setOrigin(0.5, 0.6);
       this.setCollisionCategory(COLLISION_CATEGORIES.DeathCollider);
     } else {
       // this.anims.timeScale = 0.5;
@@ -455,22 +485,20 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
       const { bodyA, bodyB } = pair;
 
       if (
-        (bodyA.collisionFilter.category === COLLISION_CATEGORIES.Ground &&
-          bodyB.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
-        (bodyB.collisionFilter.category === COLLISION_CATEGORIES.Ground &&
-          bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player)
+        (bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player &&
+          bodyB.collisionFilter.category === COLLISION_CATEGORIES.Ground) ||
+        (bodyB.collisionFilter.category === COLLISION_CATEGORIES.Player &&
+          bodyA.collisionFilter.category === COLLISION_CATEGORIES.Ground)
       ) {
         if (!this.isTouchingGround) {
           this.isTouchingGround = true;
-          this.currentJumpCounter = 0; // Сброс счётчика прыжков при касании земли
+          this.currentJumpCounter = 0;
         }
-
-        // this.isTouchingGround = true;
-        // this.currentJumpCounter = 0; // Сброс счётчика прыжков при касании земли
       }
     });
   }
 
+  /** TODO: Баг при передвижении тут ? при отключении перестала лагать анимация бега? */
   private handleCollisionEnd(
     event: Phaser.Types.Physics.Matter.MatterCollisionEvent
   ) {
@@ -484,7 +512,7 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
         (bodyB.collisionFilter.category === COLLISION_CATEGORIES.Ground &&
           bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player)
       ) {
-        this.isTouchingGround = false;
+        // this.isTouchingGround = false;
       }
     });
   }
@@ -506,6 +534,10 @@ export class Wizard extends Phaser.Physics.Matter.Sprite {
         (bodyA.collisionFilter.category === COLLISION_CATEGORIES.MimicAttack &&
           bodyB.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
         (bodyB.collisionFilter.category === COLLISION_CATEGORIES.MimicAttack &&
+          bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
+        (bodyA.collisionFilter.category === COLLISION_CATEGORIES.Enemy &&
+          bodyB.collisionFilter.category === COLLISION_CATEGORIES.Player) ||
+        (bodyB.collisionFilter.category === COLLISION_CATEGORIES.Enemy &&
           bodyA.collisionFilter.category === COLLISION_CATEGORIES.Player)
       ) {
         this.scene.cameras.main.shake(500, 0.009);

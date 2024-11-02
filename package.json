@@ -11,7 +11,7 @@
   "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",
   "homepage": "https://github.com/likeavenus/strange-things",
   "scripts": {
-    "dev": "node log.js dev & vite --config vite/config.dev.mjs",
+    "start": "node log.js dev & vite --config vite/config.dev.mjs",
     "build": "node log.js build & vite build --config vite/config.prod.mjs",
     "dev-nolog": "vite --config vite/config.dev.mjs",
     "build-nolog": "vite build --config vite/config.prod.mjs",

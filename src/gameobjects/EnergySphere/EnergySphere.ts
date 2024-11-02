@@ -20,7 +20,7 @@ export class EnergySphere extends Phaser.Physics.Matter.Sprite {
     this.setCircle(this.width / 4);
     this.setIgnoreGravity(true);
     this.setFixedRotation();
-    this.setTint(0x00f0ff);
+    this.setTint(0x00f0ff).setDepth(150);
 
     this.setCollisionCategory(COLLISION_CATEGORIES.EnergySphere);
     this.setCollidesWith([
